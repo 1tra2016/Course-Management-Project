@@ -1,6 +1,6 @@
 package DAO;
 import java.sql.*;
-import connect.DBConnection;
+import utils.DBConnection;
 public class LoginManagement {
     public static boolean loginAsAdmin(String username, String password){
         String sql ="call login_as_admin(?,?,?)";

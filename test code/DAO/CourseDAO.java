@@ -1,6 +1,6 @@
 package DAO;
 
-import connect.DBConnection;
+import utils.DBConnection;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -110,5 +110,37 @@ public class CourseDAO {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static List<Course> findCourse(String keyword){
+        List<Course> courses = new ArrayList<>();
+        String sql = "call find_course(?,?)";
+        try(Connection con = DBConnection.getConnection();
+            CallableStatement cs = con.prepareCall(sql)
+        ){
+            con.setAutoCommit(false);
+            cs.setString(1,keyword);
+            cs.registerOutParameter(2, Types.REF_CURSOR);
+            cs.execute();
+
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                while (rs.next()) {
+                    Course course = new Course(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getInt("duration"),
+                            rs.getString("instructor"),
+                            rs.getTimestamp("created_at")
+                    );
+                    courses.add(course);
+                }
+            }
+
+            con.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return courses;
     }
 }
